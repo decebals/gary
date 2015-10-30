@@ -65,16 +65,12 @@ void setup() {
 }
 
 void loop() {
-  // get calibrated readings along with the line position
-  // refer to the QTR Sensors Arduino Library for more details on line position.
-  int position = qtrrc.readLine(sensorValues);
-  
-  int error = position - 1000;
+  int pid = calculatePid();
 
-  int pid = Kp * error + Kd * (error - lastError);
-  lastError = error;
-
+  // calculate the new right motor speed
   int rightMotorSpeed = rightBaseSpeed + pid;
+
+  // calculate the new left motor speed
   int leftMotorSpeed = leftBaseSpeed - pid;
 
   // prevent the motor from going beyond max speed
@@ -175,5 +171,18 @@ void stopMotors() {
   digitalWrite(leftMotor2, LOW);
   digitalWrite(rightMotor1, LOW);
   digitalWrite(rightMotor2, LOW);  
+}
+
+int calculatePid() {
+  // get calibrated readings along with the line position
+  // refer to the QTR Sensors Arduino Library for more details on line position.
+  int position = qtrrc.readLine(sensorValues);
+  
+  int error = position - 1000;
+
+  int pid = Kp * error + Kd * (error - lastError);
+  lastError = error;  
+
+  return pid;
 }
 
